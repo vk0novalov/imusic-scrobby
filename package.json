@@ -1,0 +1,21 @@
+{
+  "name": "imusic-scrobby",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning --env-file .env --experimental-webstorage --localstorage-file .localStorage --experimental-strip-types src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "applescript": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}

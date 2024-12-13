@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "esnext", // Modern target for JavaScript features
+    "module": "NodeNext", // Use ESNext module resolution
+    "strict": true, // Enable strict type-checking options
+    "esModuleInterop": true, // Smooth interop with CommonJS modules
+    "skipLibCheck": true, // Skip type checks of declaration files for faster builds
+    "moduleResolution": "NodeNext", // Use Node.js module resolution
+    "resolveJsonModule": true, // Allow importing JSON files
+    "allowSyntheticDefaultImports": true, // Enable default imports from modules without default exports
+    "isolatedModules": true, // Ensure each file can be compiled in isolation
+    "forceConsistentCasingInFileNames": true, // Enforce consistent casing in imports
+    "noImplicitAny": true, // Warn on variables with an implicit 'any' type
+    "noUnusedLocals": true, // Warn on unused local variables
+    "noUnusedParameters": true, // Warn on unused parameters
+    "noImplicitReturns": true, // Ensure all code paths return a value
+    "noFallthroughCasesInSwitch": true, // Prevent fallthrough in switch statements
+    "noEmit": true, // Do not emit output files
+    "allowImportingTsExtensions": true, // Allow importing TypeScript files with .ts extensions
+    "rewriteRelativeImportExtensions": true, // Rewrite relative imports to use .ts extensions
+    "verbatimModuleSyntax": true, // Use verbatim module syntax
+    "typeRoots": ["./node_modules/@types", "./types"] // Specify the directory of type definitions
+  },
+  "include": ["src"], // Specify the source directory for TypeScript files
+  "exclude": ["node_modules", "dist"] // Exclude common folders from compilation
+}
