@@ -9,8 +9,15 @@ const APPLE_MUSIC_OFF_SLEEP_MS = 30000
 let lastScrobbledTrack: TrackInfo | null = null;
 let nowPlayingTrack: TrackInfo | null = null;
 
-function checkForRewind(lastScrobbledTrack: TrackInfo, nowPlayingTrack: TrackInfo, position: number) {
+const getStartTime = (position: number) => Date.now() - position * 1000
+
+function checkForNewTrack(nowPlayingTrack: TrackInfo, track: string, artist: string) {
+  return nowPlayingTrack.track !== track || nowPlayingTrack.artist !== artist
+}
+
+function checkForRewind(lastScrobbledTrack: TrackInfo | null, nowPlayingTrack: TrackInfo, position: number) {
   if (!lastScrobbledTrack) return false
+
   if (lastScrobbledTrack.track !== nowPlayingTrack.track && lastScrobbledTrack.artist !== nowPlayingTrack.artist) return false
   return lastScrobbledTrack.position !== undefined && position < lastScrobbledTrack.position && position < DEFAULT_SLEEP_MS
 }
@@ -41,16 +48,16 @@ async function pollMusic(sessionKey: string) {
   }
 
   // Update Now Playing if the track has changed
-  if (!nowPlayingTrack || nowPlayingTrack.track !== track || nowPlayingTrack.artist !== artist) {
-    nowPlayingTrack = { track, artist, album, startTime: Date.now() - position * 1000 };
+  if (!nowPlayingTrack || checkForNewTrack(nowPlayingTrack, track, artist)) {
+    nowPlayingTrack = { track, artist, album, startTime: getStartTime(position) };
     await updateNowPlaying(sessionKey, nowPlayingTrack).catch(console.error);
     // console.log(`Now playing: ${artist} - ${track}`);
   }
 
-  if (lastScrobbledTrack && checkForRewind(lastScrobbledTrack, nowPlayingTrack, position)) {
+  if (checkForRewind(lastScrobbledTrack, nowPlayingTrack, position)) {
     // looks like rewind - so it's new scrobbling
     lastScrobbledTrack = null
-    nowPlayingTrack.startTime = Date.now() - position * 1000
+    nowPlayingTrack.startTime = getStartTime(position)
     await updateNowPlaying(sessionKey, nowPlayingTrack).catch(console.error);
   }
 

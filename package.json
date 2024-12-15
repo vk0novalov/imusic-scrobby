@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node --disable-warning=ExperimentalWarning --env-file .env --experimental-webstorage --localstorage-file .localStorage --experimental-strip-types src/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --disable-warning=ExperimentalWarning --experimental-strip-types --test"
   },
   "keywords": [],
   "author": "",

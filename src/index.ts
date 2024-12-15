@@ -1,8 +1,6 @@
 import { authenticate } from './lib/lastfm.ts'
 import { startScrobbling } from './scrobbler.ts';
 
-process.title = "imusic-scrobby";
-
 const SESSION_KEY = 'sessionKey'
 
 const getSessionKey = async () => {
@@ -15,6 +13,8 @@ const getSessionKey = async () => {
 }
 
 const main = async () => {
+  process.title = 'imusic-scrobby';
+
   startScrobbling(await getSessionKey())
 }
 main().catch((err) => {
