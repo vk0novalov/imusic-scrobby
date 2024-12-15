@@ -1,6 +1,6 @@
 import applescript from "applescript";
 
-import type { MusicState } from './types.ts';
+type MusicState = [string, string, string, string, string, number, number]
 
 function checkAppleMusicState(): Promise<MusicState> {
   return new Promise((resolve, reject) => {
@@ -27,12 +27,11 @@ function checkAppleMusicState(): Promise<MusicState> {
           end if
         `;
 
-    applescript.execString(script, (err: Error | null, result: any) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(result as MusicState);
-      }
+    applescript.execString<MusicState>(script, (err, result) => {
+      if (err) return reject(err);
+      if (!result) return reject(new Error("Failed to check Apple Music state"));
+
+      resolve(result);
     });
   });
 }

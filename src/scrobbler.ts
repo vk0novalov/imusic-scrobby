@@ -51,7 +51,7 @@ async function pollMusic(sessionKey: string) {
     // TODO: retry to scrobble on error
     await scrobbleTrack(sessionKey, nowPlayingTrack).catch(console.error);
     // console.log(`Scrobbled: ${artist} - ${track}`);
-    lastScrobbledTrack = { track, artist, position };
+    lastScrobbledTrack = { track, artist, position, album };
   }
   return true
 }
