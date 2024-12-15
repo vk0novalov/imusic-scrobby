@@ -15,6 +15,15 @@ function checkForRewind(lastScrobbledTrack: TrackInfo, nowPlayingTrack: TrackInf
   return lastScrobbledTrack.position !== undefined && position < lastScrobbledTrack.position && position < DEFAULT_SLEEP_MS
 }
 
+function hasTrackChanged(lastScrobbledTrack: TrackInfo | null, track: string, artist: string) {
+  if (!lastScrobbledTrack) return true
+  return lastScrobbledTrack.track !== track || lastScrobbledTrack.artist !== artist
+}
+
+function isEnoughTimeElapsed(position: number, duration: number) {
+  return position > Math.min(duration / 2, 4 * 60)
+}
+
 async function pollMusic(sessionKey: string) {
   const [isRunning, isPlaying, track, artist, album, duration, position] = await checkAppleMusicState();
 
@@ -35,7 +44,7 @@ async function pollMusic(sessionKey: string) {
   if (!nowPlayingTrack || nowPlayingTrack.track !== track || nowPlayingTrack.artist !== artist) {
     nowPlayingTrack = { track, artist, album, startTime: Date.now() - position * 1000 };
     await updateNowPlaying(sessionKey, nowPlayingTrack).catch(console.error);
-    console.log(`Now playing: ${artist} - ${track}`);
+    // console.log(`Now playing: ${artist} - ${track}`);
   }
 
   if (lastScrobbledTrack && checkForRewind(lastScrobbledTrack, nowPlayingTrack, position)) {
@@ -46,8 +55,7 @@ async function pollMusic(sessionKey: string) {
   }
 
   // Scrobble the track if it's a new track and has played for at least half its duration or 4 minutes
-  if ((!lastScrobbledTrack || lastScrobbledTrack.track !== track || lastScrobbledTrack.artist !== artist) &&
-    (position > Math.min(duration / 2, 4 * 60))) {
+  if (hasTrackChanged(lastScrobbledTrack, track, artist) && isEnoughTimeElapsed(position, duration)) {
     // TODO: retry to scrobble on error
     await scrobbleTrack(sessionKey, nowPlayingTrack).catch(console.error);
     // console.log(`Scrobbled: ${artist} - ${track}`);
@@ -57,7 +65,7 @@ async function pollMusic(sessionKey: string) {
 }
 
 async function startScrobbling(sessionKey: string) {
-  console.log('Starting scrobbling...');
+  console.log('Starting scrobbling...', sessionKey);
   while (true) {
     const isRunning = await pollMusic(sessionKey)
     await sleep(isRunning ? DEFAULT_SLEEP_MS : APPLE_MUSIC_OFF_SLEEP_MS)
