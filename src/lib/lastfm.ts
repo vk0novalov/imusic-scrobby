@@ -14,9 +14,9 @@ const API_SECRET: string = process.env.API_SECRET;
 const API_URL = 'https://ws.audioscrobbler.com/2.0/';
 
 type ScrobbleResponse = {
-  scrobbles: {
-    '@attr': {
-      accepted: number;
+  scrobbles?: {
+    '@attr'?: {
+      accepted?: number;
     };
   };
 };
@@ -35,21 +35,21 @@ type TokenResponse = {
   token: string;
 };
 
-async function scrobbleTrack(
-  sessionKey: string,
-  { artist, track, album, startTime }: TrackInfo,
-) {
-  const method = 'track.scrobble';
+const buildSearchParams = (
+  method: string,
+  data?: Partial<TrackInfo> & { token?: string, sk?: string },
+) => {
   const params = new URLSearchParams({
-    method: method,
-    api_key: API_KEY,
-    sk: sessionKey,
-    artist: artist,
-    track: track,
-    album: album,
-    timestamp: String(Math.floor((startTime ?? Date.now()) / 1000)),
+    method,
     format: 'json',
+    api_key: API_KEY,
   });
+
+  if (data) {
+    for (const [key, value] of Object.entries(data)) {
+      params.append(key, String(value));
+    }
+  }
 
   // Create API signature
   let signatureBase = '';
@@ -63,6 +63,14 @@ async function scrobbleTrack(
   const api_sig = crypto.createHash('md5').update(signatureBase).digest('hex');
   params.append('api_sig', api_sig);
 
+  return params;
+};
+
+async function scrobbleTrack(
+  sessionKey: string,
+  { artist, track, album, startTime }: TrackInfo,
+) {
+  const params = buildSearchParams('track.scrobble', { artist, track, album, startTime: Math.floor(startTime ?? Date.now() / 1000), sk: sessionKey })
   const response: ScrobbleResponse = await request(API_URL, params);
   return response.scrobbles?.['@attr']?.accepted === 1;
 }
@@ -71,35 +79,9 @@ async function updateNowPlaying(
   sessionKey: string,
   { artist, track, album }: TrackInfo,
 ) {
-  const method = 'track.updateNowPlaying';
-  const params = new URLSearchParams({
-    method: method,
-    api_key: API_KEY,
-    sk: sessionKey,
-    artist: artist,
-    track: track,
-    album: album,
-    format: 'json',
-  });
-
-  // Create API signature
-  let signatureBase = '';
-  params.sort();
-  params.forEach((value, key) => {
-    if (key !== 'format') {
-      signatureBase += key + value;
-    }
-  });
-  signatureBase += API_SECRET;
-  const api_sig = crypto
-    .createHash('md5')
-    .update(signatureBase)
-    .digest('hex');
-  params.append('api_sig', api_sig);
-
   const response = await request<UpdateNowPlayingResponse>(
     API_URL,
-    params,
+    buildSearchParams('track.updateNowPlaying', { artist, track, album, sk: sessionKey }),
   );
   return !!response.nowplaying;
 }
@@ -118,23 +100,9 @@ async function getAuthToken(): Promise<string> {
 }
 
 async function getSessionKey(token: string): Promise<string> {
-  const method = 'auth.getSession';
-  const sig = crypto
-    .createHash('md5')
-    .update(`api_key${API_KEY}method${method}token${token}${API_SECRET}`)
-    .digest('hex');
-
-  const params = new URLSearchParams({
-    method: method,
-    api_key: API_KEY,
-    token: token,
-    api_sig: sig,
-    format: 'json',
-  });
-
   const response = await request<GetSessionKeyResponse>(
     API_URL,
-    params,
+    buildSearchParams('auth.getSession', { token }),
   );
   if (!response?.session?.key) throw new Error('Failed to get session key');
   return response.session.key;

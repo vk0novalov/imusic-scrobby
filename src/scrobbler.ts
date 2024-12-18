@@ -72,7 +72,7 @@ async function pollMusic(sessionKey: string) {
 }
 
 async function startScrobbling(sessionKey: string) {
-  console.log('Starting scrobbling...', sessionKey);
+  console.log('Starting scrobbling...');
   while (true) {
     const isRunning = await pollMusic(sessionKey)
     await sleep(isRunning ? DEFAULT_SLEEP_MS : APPLE_MUSIC_OFF_SLEEP_MS)
