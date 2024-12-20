@@ -35,10 +35,7 @@ type TokenResponse = {
   token: string;
 };
 
-const buildSearchParams = (
-  method: string,
-  data?: Partial<TrackInfo> & { token?: string, sk?: string },
-) => {
+const buildSearchParams = (method: string, data?: Partial<TrackInfo> & { token?: string; sk?: string }) => {
   const params = new URLSearchParams({
     method,
     format: 'json',
@@ -66,19 +63,19 @@ const buildSearchParams = (
   return params;
 };
 
-async function scrobbleTrack(
-  sessionKey: string,
-  { artist, track, album, startTime }: TrackInfo,
-) {
-  const params = buildSearchParams('track.scrobble', { artist, track, album, startTime: Math.floor(startTime ?? Date.now() / 1000), sk: sessionKey })
+async function scrobbleTrack(sessionKey: string, { artist, track, album, startTime }: TrackInfo) {
+  const params = buildSearchParams('track.scrobble', {
+    artist,
+    track,
+    album,
+    startTime: Math.floor(startTime ?? Date.now() / 1000),
+    sk: sessionKey,
+  });
   const response: ScrobbleResponse = await request(API_URL, params);
   return response.scrobbles?.['@attr']?.accepted === 1;
 }
 
-async function updateNowPlaying(
-  sessionKey: string,
-  { artist, track, album }: TrackInfo,
-) {
+async function updateNowPlaying(sessionKey: string, { artist, track, album }: TrackInfo) {
   const response = await request<UpdateNowPlayingResponse>(
     API_URL,
     buildSearchParams('track.updateNowPlaying', { artist, track, album, sk: sessionKey }),
@@ -95,15 +92,12 @@ async function getAuthToken(): Promise<string> {
 
   const url = `${API_URL}?${params}`;
 
-  const response: TokenResponse = await request(url)
+  const response: TokenResponse = await request(url);
   return response.token;
 }
 
 async function getSessionKey(token: string): Promise<string> {
-  const response = await request<GetSessionKeyResponse>(
-    API_URL,
-    buildSearchParams('auth.getSession', { token }),
-  );
+  const response = await request<GetSessionKeyResponse>(API_URL, buildSearchParams('auth.getSession', { token }));
   if (!response?.session?.key) throw new Error('Failed to get session key');
   return response.session.key;
 }
@@ -112,9 +106,7 @@ async function authenticate(): Promise<string> {
   try {
     const token = await getAuthToken();
     console.log('Please visit this URL to authorize the application:');
-    console.log(
-      `http://www.last.fm/api/auth/?api_key=${API_KEY}&token=${token}`,
-    );
+    console.log(`http://www.last.fm/api/auth/?api_key=${API_KEY}&token=${token}`);
 
     const rl = readline.createInterface({
       input: process.stdin,
@@ -122,19 +114,14 @@ async function authenticate(): Promise<string> {
     });
 
     await new Promise<void>((resolve) => {
-      rl.question(
-        'Press Enter after you have authorized the application...',
-        () => {
-          rl.close();
-          resolve();
-        },
-      );
+      rl.question('Press Enter after you have authorized the application...', () => {
+        rl.close();
+        resolve();
+      });
     });
 
     const sessionKey = await getSessionKey(token);
-    console.log(
-      `Authentication successful! Your session key is: ${sessionKey}`,
-    );
+    console.log(`Authentication successful! Your session key is: ${sessionKey}`);
     return sessionKey;
   } catch (error: unknown) {
     if (error instanceof Error) {
