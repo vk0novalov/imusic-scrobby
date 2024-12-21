@@ -80,10 +80,22 @@ async function pollMusic(sessionKey: string) {
 
 async function startScrobbling(sessionKey: string) {
   console.log('Starting scrobbling...');
-  while (true) {
-    const isRunning = await pollMusic(sessionKey);
-    await sleep(isRunning ? DEFAULT_SLEEP_MS : APPLE_MUSIC_OFF_SLEEP_MS);
-  }
+
+  let isRunning = true;
+
+  const poll = async () => {
+    while (isRunning) {
+      const isRunning = await pollMusic(sessionKey);
+      await sleep(isRunning ? DEFAULT_SLEEP_MS : APPLE_MUSIC_OFF_SLEEP_MS);
+    }
+  };
+  process.nextTick(poll);
+
+  return () => {
+    if (!isRunning) return;
+    console.log('Stopping scrobbling...');
+    isRunning = false;
+  };
 }
 
 export { startScrobbling };

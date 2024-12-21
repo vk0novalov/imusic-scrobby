@@ -1,6 +1,6 @@
 # iMusic-Scrobby
 
-Simple music scrobbler for Apple Music written in Node.js
+Simple music scrobbler for Apple Music written in Node.js (22.12+)
 
 ## Table of Contents
 

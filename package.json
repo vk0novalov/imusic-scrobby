@@ -1,12 +1,15 @@
 {
   "name": "imusic-scrobby",
   "version": "1.0.0",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
     "dev": "node --disable-warning=ExperimentalWarning --env-file .env --experimental-webstorage --localstorage-file .localStorage --experimental-strip-types --watch src/** --watch-preserve-output src/index.ts",
     "start": "node --disable-warning=ExperimentalWarning --env-file .env --experimental-webstorage --localstorage-file .localStorage --experimental-strip-types src/index.ts",
-    "test": "node --disable-warning=ExperimentalWarning --experimental-strip-types --test"
+    "test": "node --disable-warning=ExperimentalWarning --env-file .env.test --experimental-test-module-mocks --experimental-strip-types --test test/**"
   },
   "keywords": [],
   "author": "",

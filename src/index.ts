@@ -21,7 +21,7 @@ const getSessionKey = async () => {
 const main = async () => {
   process.title = 'imusic-scrobby';
 
-  startScrobbling(await getSessionKey());
+  await startScrobbling(await getSessionKey());
 };
 main().catch((err) => {
   console.error(err);
