@@ -15,7 +15,27 @@ export const request = <T>(
 ): Promise<T> => {
   return new Promise((resolve, reject) => {
     const handler = async (res: http.IncomingMessage) => {
+      res.on('aborted', () => {
+        reject(new Error('Response was aborted.'));
+      });
+
+      res.on('error', (err) => {
+        reject(err);
+      });
+
+      res.on('close', () => {
+        if (!res.complete) {
+          reject(new Error('Response was closed before fully completing.'));
+        }
+      });
+
+      const { statusCode } = res;
+      if (statusCode && statusCode > 299) {
+        reject(new Error(`Request failed with status code ${res.statusCode}`));
+      }
+
       let data = '';
+      res.setEncoding('utf8');
       for await (const chunk of res) {
         data += chunk;
       }
