@@ -1,6 +1,10 @@
 # iMusic-Scrobby
 
-Simple music scrobbler for Apple Music written in Node.js (22.12+) [![Testing CI](https://github.com/vk0novalov/imusic-scrobby/actions/workflows/test.yml/badge.svg)](https://github.com/vk0novalov/imusic-scrobby/actions/workflows/test.yml)
+Simple music scrobbler for Apple Music written in Node.js (22.12+)
+
+[![Testing CI](https://github.com/vk0novalov/imusic-scrobby/actions/workflows/test.yml/badge.svg)](https://github.com/vk0novalov/imusic-scrobby/actions/workflows/test.yml)
+[![snyk](https://snyk.io/test/github/vk0novalov/imusic-scrobby/badge.svg)](https://snyk.io/test/github/vk0novalov/imusic-scrobby)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/vk0novalov/imusic-scrobby/blob/main/LICENSE)
 
 ## Table of Contents
 
