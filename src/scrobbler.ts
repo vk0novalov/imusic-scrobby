@@ -1,4 +1,10 @@
-import { setTimeout as sleep } from 'node:timers/promises';
+import { createRequire } from 'node:module';
+// NOTE: weird workaround for testing and to enable the possibility of mocking timers for ESM
+// https://nodejs.org/api/test.html#timers
+// Destructuring functions such as import { setTimeout } from 'node:timers' is currently not supported by this API.
+const require = createRequire(import.meta.url);
+const { setTimeout: sleep } = require('node:timers/promises');
+
 import { checkAppleMusicState } from './lib/imusic.ts';
 import { scrobbleTrack, updateNowPlaying } from './lib/lastfm.ts';
 import type { TrackInfo } from './lib/types.ts';
@@ -81,20 +87,20 @@ async function pollMusic(sessionKey: string) {
 async function startScrobbling(sessionKey: string) {
   console.log('Starting scrobbling...');
 
-  let isRunning = true;
+  let isScrobbling = true;
 
   const poll = async () => {
-    while (isRunning) {
-      const isRunning = await pollMusic(sessionKey);
-      await sleep(isRunning ? DEFAULT_SLEEP_MS : APPLE_MUSIC_OFF_SLEEP_MS);
+    while (isScrobbling) {
+      const isMusicLaunched = await pollMusic(sessionKey);
+      await sleep(isMusicLaunched ? DEFAULT_SLEEP_MS : APPLE_MUSIC_OFF_SLEEP_MS);
     }
   };
   process.nextTick(poll);
 
   return () => {
-    if (!isRunning) return;
+    if (!isScrobbling) return;
     console.log('Stopping scrobbling...');
-    isRunning = false;
+    isScrobbling = false;
   };
 }
 

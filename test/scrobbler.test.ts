@@ -114,4 +114,65 @@ describe('startScrobbling', () => {
       { ...fakeTrack, startTime: timeToSkipMs },
     ]);
   });
+
+  it('should scrobble rewinded tracks', async (t) => {
+    t.mock.timers.enable({ apis: ['setTimeout', 'Date'] });
+
+    const position = 60;
+    const timeToSkipMs = 100000;
+
+    const fakeTrack = {
+      track: 'track',
+      artist: 'artist',
+      album: 'album',
+    };
+
+    const musicStateMockFn = mock.fn(() => ['true', 'true', ...Object.values(fakeTrack), 100, position]);
+    const scrobbleTrackMockFn = mock.fn(() => Promise.resolve(true));
+    const updateNowPlayingMockFn = mock.fn(() => Promise.resolve(true));
+
+    const mockMusicModule = t.mock.module('../src/lib/imusic.ts', {
+      namedExports: {
+        checkAppleMusicState: musicStateMockFn,
+      },
+    });
+    const mockLastfmModule = t.mock.module('../src/lib/lastfm.ts', {
+      namedExports: {
+        scrobbleTrack: scrobbleTrackMockFn,
+        updateNowPlaying: updateNowPlayingMockFn,
+      },
+    });
+
+    const { startScrobbling } = await importWithoutCache('../src/scrobbler.ts');
+
+    t.mock.timers.tick(timeToSkipMs + position * 1000);
+
+    const stop = await startScrobbling('sessionKey');
+    await new Promise((resolve) => setImmediate(resolve));
+
+    musicStateMockFn.mock.mockImplementation(() => ['true', 'true', ...Object.values(fakeTrack), 100, 10]);
+    t.mock.timers.tick(11000);
+    await new Promise((resolve) => setImmediate(resolve));
+
+    await stop();
+
+    mockMusicModule.restore();
+    mockLastfmModule.restore();
+
+    assert.strictEqual(musicStateMockFn.mock.callCount(), 2);
+    assert.strictEqual(scrobbleTrackMockFn.mock.callCount(), 1);
+    assert.strictEqual(updateNowPlayingMockFn.mock.callCount(), 2);
+
+    assert.deepEqual(scrobbleTrackMockFn.mock.calls[0].arguments, ['sessionKey', { ...fakeTrack, startTime: 161000 }]);
+    assert.deepEqual(updateNowPlayingMockFn.mock.calls[0].arguments, [
+      'sessionKey',
+
+      { ...fakeTrack, startTime: 161000 },
+    ]);
+    assert.deepEqual(updateNowPlayingMockFn.mock.calls[1].arguments, [
+      'sessionKey',
+
+      { ...fakeTrack, startTime: 161000 },
+    ]);
+  });
 });
