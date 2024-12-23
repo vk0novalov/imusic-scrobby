@@ -1,7 +1,7 @@
 import { promisify } from 'node:util';
 import applescript from 'applescript';
 
-type MusicState = [string, string, string, string, string, number, number];
+type MusicState = [boolean, boolean, string, string, string, number, number];
 
 const execString = promisify(applescript.execString);
 
@@ -31,6 +31,9 @@ const checkStateScript = `
 async function checkAppleMusicState(): Promise<MusicState> {
   const result = await execString<MusicState>(checkStateScript);
   if (!result) throw new Error('Failed to check Apple Music state');
+  // Convert booleans to actual booleans, it's a hack for AppleScript
+  result[0] = String(result[0]) === 'true';
+  result[1] = String(result[1]) === 'true';
   return result;
 }
 

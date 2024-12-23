@@ -12,6 +12,8 @@ import type { TrackInfo } from './lib/types.ts';
 const DEFAULT_SLEEP_MS = 10000;
 const APPLE_MUSIC_OFF_SLEEP_MS = 30000;
 
+type MusicAppState = 'inactive' | 'active';
+
 let lastScrobbledTrack: TrackInfo | null = null;
 let nowPlayingTrack: TrackInfo | null = null;
 
@@ -39,20 +41,20 @@ const hasTrackChanged = (lastScrobbledTrack: TrackInfo | null, track: string, ar
 
 const isEnoughTimeElapsed = (position: number, duration: number) => position > Math.min(duration / 2, 4 * 60);
 
-async function pollMusic(sessionKey: string) {
+async function pollMusic(sessionKey: string): Promise<MusicAppState> {
   const [isRunning, isPlaying, track, artist, album, duration, position] = await checkAppleMusicState();
 
-  if (isRunning === 'false') {
+  if (!isRunning) {
     if (nowPlayingTrack) {
       await scrobbleTrack(sessionKey, nowPlayingTrack).catch(console.error);
     }
     nowPlayingTrack = null;
-    return false;
+    return 'inactive';
   }
 
-  if (isPlaying === 'false') {
+  if (!isPlaying) {
     nowPlayingTrack = null;
-    return false;
+    return 'inactive';
   }
 
   // Update Now Playing if the track has changed
@@ -81,7 +83,7 @@ async function pollMusic(sessionKey: string) {
     // console.log(`Scrobbled: ${artist} - ${track}`);
     lastScrobbledTrack = { track, artist, position, album };
   }
-  return true;
+  return 'active';
 }
 
 async function startScrobbling(sessionKey: string) {
@@ -91,8 +93,8 @@ async function startScrobbling(sessionKey: string) {
 
   const poll = async () => {
     while (isScrobbling) {
-      const isMusicLaunched = await pollMusic(sessionKey);
-      await sleep(isMusicLaunched ? DEFAULT_SLEEP_MS : APPLE_MUSIC_OFF_SLEEP_MS);
+      const isMusicAppActive = await pollMusic(sessionKey);
+      await sleep(isMusicAppActive === 'active' ? DEFAULT_SLEEP_MS : APPLE_MUSIC_OFF_SLEEP_MS);
     }
   };
   process.nextTick(poll);

@@ -25,7 +25,7 @@ describe('startScrobbling', () => {
       album: 'album',
     };
 
-    const musicStateMockFn = mock.fn(() => ['true', 'true', ...Object.values(fakeTrack), 100, position]);
+    const musicStateMockFn = mock.fn(() => [true, true, ...Object.values(fakeTrack), 100, position]);
     const scrobbleTrackMockFn = mock.fn(() => Promise.resolve(true));
     const updateNowPlayingMockFn = mock.fn(() => Promise.resolve(true));
 
@@ -78,7 +78,7 @@ describe('startScrobbling', () => {
       album: 'album',
     };
 
-    const musicStateMockFn = mock.fn(() => ['true', 'true', ...Object.values(fakeTrack), 100, position]);
+    const musicStateMockFn = mock.fn(() => [true, true, ...Object.values(fakeTrack), 100, position]);
     const scrobbleTrackMockFn = mock.fn(() => Promise.resolve(true));
     const updateNowPlayingMockFn = mock.fn(() => Promise.resolve(true));
 
@@ -127,7 +127,7 @@ describe('startScrobbling', () => {
       album: 'album',
     };
 
-    const musicStateMockFn = mock.fn(() => ['true', 'true', ...Object.values(fakeTrack), 100, position]);
+    const musicStateMockFn = mock.fn(() => [true, true, ...Object.values(fakeTrack), 100, position]);
     const scrobbleTrackMockFn = mock.fn(() => Promise.resolve(true));
     const updateNowPlayingMockFn = mock.fn(() => Promise.resolve(true));
 
@@ -150,7 +150,7 @@ describe('startScrobbling', () => {
     const stop = await startScrobbling('sessionKey');
     await new Promise((resolve) => setImmediate(resolve));
 
-    musicStateMockFn.mock.mockImplementation(() => ['true', 'true', ...Object.values(fakeTrack), 100, 10]);
+    musicStateMockFn.mock.mockImplementation(() => [true, true, ...Object.values(fakeTrack), 100, 10]);
     t.mock.timers.tick(11000);
     await new Promise((resolve) => setImmediate(resolve));
 
