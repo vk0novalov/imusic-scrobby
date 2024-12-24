@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import readline from 'node:readline';
+import { setTimeout as sleep } from 'node:timers/promises';
 import { request } from './network/request.ts';
 import type { TrackInfo } from './types.ts';
 
@@ -63,6 +64,19 @@ const buildSearchParams = (method: string, data?: Partial<TrackInfo> & { token?:
   return params;
 };
 
+async function callApi<T>(url: string, params?: URLSearchParams, retry = 0) {
+  try {
+    const response = await request<T>(url, params);
+    return response;
+  } catch (error) {
+    if (retry > 2) throw error;
+
+    const nextRetry = retry + 1;
+    await sleep(10_000 * nextRetry ** 2);
+    return callApi(url, params, nextRetry);
+  }
+}
+
 async function scrobbleTrack(sessionKey: string, { artist, track, album, startTime }: TrackInfo) {
   const params = buildSearchParams('track.scrobble', {
     artist,
@@ -71,12 +85,12 @@ async function scrobbleTrack(sessionKey: string, { artist, track, album, startTi
     startTime: Math.floor(startTime ?? Date.now() / 1000),
     sk: sessionKey,
   });
-  const response: ScrobbleResponse = await request(API_URL, params);
+  const response = await callApi<ScrobbleResponse>(API_URL, params);
   return response.scrobbles?.['@attr']?.accepted === 1;
 }
 
 async function updateNowPlaying(sessionKey: string, { artist, track, album }: TrackInfo) {
-  const response = await request<UpdateNowPlayingResponse>(
+  const response = await callApi<UpdateNowPlayingResponse>(
     API_URL,
     buildSearchParams('track.updateNowPlaying', { artist, track, album, sk: sessionKey }),
   );

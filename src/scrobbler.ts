@@ -41,13 +41,16 @@ const hasTrackChanged = (lastScrobbledTrack: TrackInfo | null, track: string, ar
 
 const isEnoughTimeElapsed = (position: number, duration: number) => position > Math.min(duration / 2, 4 * 60);
 
+const scrobble = async (sessionKey: string, trackInfo: TrackInfo) => {
+  console.log(`Scrobbled: ${trackInfo.artist} - ${trackInfo.track}`);
+  await scrobbleTrack(sessionKey, trackInfo).catch(console.error);
+};
+
 async function pollMusic(sessionKey: string): Promise<MusicAppState> {
   const [isRunning, isPlaying, track, artist, album, duration, position] = await checkAppleMusicState();
 
   if (!isRunning) {
-    if (nowPlayingTrack) {
-      await scrobbleTrack(sessionKey, nowPlayingTrack).catch(console.error);
-    }
+    if (nowPlayingTrack) scrobble(sessionKey, nowPlayingTrack);
     nowPlayingTrack = null;
     return 'inactive';
   }
@@ -66,7 +69,6 @@ async function pollMusic(sessionKey: string): Promise<MusicAppState> {
       startTime: getStartTime(position),
     };
     await updateNowPlaying(sessionKey, nowPlayingTrack).catch(console.error);
-    // console.log(`Now playing: ${artist} - ${track}`);
   }
 
   if (checkForRewind(lastScrobbledTrack, nowPlayingTrack, position)) {
@@ -78,9 +80,7 @@ async function pollMusic(sessionKey: string): Promise<MusicAppState> {
 
   // Scrobble the track if it's a new track and has played for at least half its duration or 4 minutes
   if (hasTrackChanged(lastScrobbledTrack, track, artist) && isEnoughTimeElapsed(position, duration)) {
-    // TODO: retry to scrobble on error
-    await scrobbleTrack(sessionKey, nowPlayingTrack).catch(console.error);
-    // console.log(`Scrobbled: ${artist} - ${track}`);
+    scrobble(sessionKey, nowPlayingTrack);
     lastScrobbledTrack = { track, artist, position, album };
   }
   return 'active';
@@ -93,8 +93,8 @@ async function startScrobbling(sessionKey: string) {
 
   const poll = async () => {
     while (isScrobbling) {
-      const isMusicAppActive = await pollMusic(sessionKey);
-      await sleep(isMusicAppActive === 'active' ? DEFAULT_SLEEP_MS : APPLE_MUSIC_OFF_SLEEP_MS);
+      const musicAppState = await pollMusic(sessionKey);
+      await sleep(musicAppState === 'active' ? DEFAULT_SLEEP_MS : APPLE_MUSIC_OFF_SLEEP_MS);
     }
   };
   process.nextTick(poll);
