@@ -5,9 +5,10 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const { setTimeout: sleep } = require('node:timers/promises');
 
-import { checkAppleMusicState } from './lib/imusic.ts';
-import { scrobbleTrack, updateNowPlaying } from './lib/lastfm.ts';
-import type { TrackInfo } from './lib/types.ts';
+import { checkAppleMusicState } from './services/imusic.ts';
+import { scrobbleTrack, updateNowPlaying } from './services/lastfm.ts';
+import logger from './lib/logger.ts';
+import type { TrackInfo } from './types.ts';
 
 const DEFAULT_SLEEP_MS = 10000;
 const APPLE_MUSIC_OFF_SLEEP_MS = 30000;
@@ -42,7 +43,7 @@ const hasTrackChanged = (lastScrobbledTrack: TrackInfo | null, track: string, ar
 const isEnoughTimeElapsed = (position: number, duration: number) => position > Math.min(duration / 2, 4 * 60);
 
 const scrobble = async (sessionKey: string, trackInfo: TrackInfo) => {
-  console.log(`Scrobbled: ${trackInfo.artist} - ${trackInfo.track}`);
+  logger.trace(`Scrobbled: ${trackInfo.artist} - ${trackInfo.track}`);
   await scrobbleTrack(sessionKey, trackInfo).catch(console.error);
 };
 
@@ -87,7 +88,7 @@ async function pollMusic(sessionKey: string): Promise<MusicAppState> {
 }
 
 async function startScrobbling(sessionKey: string) {
-  console.log('Starting scrobbling...');
+  logger.info('Starting scrobbling...');
 
   let isScrobbling = true;
 
@@ -101,7 +102,7 @@ async function startScrobbling(sessionKey: string) {
 
   return () => {
     if (!isScrobbling) return;
-    console.log('Stopping scrobbling...');
+    logger.info('Stopping scrobbling...');
     isScrobbling = false;
   };
 }

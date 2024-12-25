@@ -12,14 +12,22 @@
     "test": "node --disable-warning=ExperimentalWarning --env-file .env.test --experimental-test-module-mocks --experimental-strip-types --test test/**",
     "test:only": "node --disable-warning=ExperimentalWarning --env-file .env.test --experimental-test-module-mocks --experimental-strip-types --test --test-only test/**"
   },
-  "keywords": ["apple", "music", "scrobbler", "lastfm", "last.fm"],
+  "keywords": [
+    "apple",
+    "music",
+    "scrobbler",
+    "lastfm",
+    "last.fm"
+  ],
   "author": "Viktor Konovalov <victor@konovalov.pw>",
   "license": "MIT",
   "description": "Simple music scrobbler for Apple Music",
   "dependencies": {
-    "applescript": "^1.0.0"
+    "applescript": "^1.0.0",
+    "pino": "^9.6.0"
   },
   "devDependencies": {
+    "@types/pino": "^7.0.4",
     "@types/node": "^22.10.2"
   }
 }

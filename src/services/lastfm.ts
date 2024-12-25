@@ -1,8 +1,8 @@
 import crypto from 'node:crypto';
 import readline from 'node:readline';
 import { setTimeout as sleep } from 'node:timers/promises';
-import { request } from './network/request.ts';
-import type { TrackInfo } from './types.ts';
+import { request } from '../lib/network/request.ts';
+import type { TrackInfo } from '../types.ts';
 
 // TODO: move to config and validate on startup
 if (!process.env.API_KEY || !process.env.API_SECRET) {
