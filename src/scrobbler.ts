@@ -42,9 +42,12 @@ const hasTrackChanged = (lastScrobbledTrack: TrackInfo | null, track: string, ar
 
 const isEnoughTimeElapsed = (position: number, duration: number) => position > Math.min(duration / 2, 4 * 60);
 
-const scrobble = async (sessionKey: string, trackInfo: TrackInfo) => {
-  logger.trace(`Scrobbled: ${trackInfo.artist} - ${trackInfo.track}`);
-  await scrobbleTrack(sessionKey, trackInfo).catch(console.error);
+const scrobble = (sessionKey: string, trackInfo: TrackInfo) => {
+  logger.trace(`Scrobble: ${trackInfo.artist} - ${trackInfo.track}`);
+  scrobbleTrack(sessionKey, trackInfo).catch((err: Error) => {
+    logger.warn(`Failed to scrobble: ${trackInfo.artist} - ${trackInfo.track}, error: ${err.message}`);
+    // TODO: save to sqlite? or just log without further processing?
+  });
 };
 
 async function pollMusic(sessionKey: string): Promise<MusicAppState> {
