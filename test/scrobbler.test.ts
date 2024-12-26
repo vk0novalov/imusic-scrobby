@@ -4,6 +4,10 @@ import assert from 'node:assert';
 let importIndex = 0;
 const importWithoutCache = (path: string) => import(`${path}?no-cache=${importIndex++}`);
 
+mock.module('is-online', {
+  defaultExport: () => Promise.resolve(true),
+});
+
 describe('startScrobbling', () => {
   it('should return a function', async () => {
     const { startScrobbling } = await importWithoutCache('../src/scrobbler.ts');

@@ -26,7 +26,7 @@ const getSessionKey = async () => {
 const main = async () => {
   process.title = 'imusic-scrobby';
 
-  await startScrobbling(process.env.SESSION_KEY ?? (await getSessionKey()));
+  await startScrobbling(process.env.SESSION_KEY ?? (await getSessionKey()), { launchRetryQueue: true });
 };
 main().catch((err) => {
   console.error(err);

@@ -1,4 +1,5 @@
 type TrackInfo = {
+  id?: string;
   track: string;
   artist: string;
   album: string;

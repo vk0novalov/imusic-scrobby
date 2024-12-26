@@ -36,7 +36,10 @@ type TokenResponse = {
   token: string;
 };
 
-const buildSearchParams = (method: string, data?: Partial<TrackInfo> & { token?: string; sk?: string }) => {
+const buildSearchParams = (
+  method: string,
+  data?: Partial<TrackInfo> & { timestamp?: number; token?: string; sk?: string },
+) => {
   const params = new URLSearchParams({
     method,
     format: 'json',
@@ -82,7 +85,7 @@ async function scrobbleTrack(sessionKey: string, { artist, track, album, startTi
     artist,
     track,
     album,
-    startTime: Math.floor(startTime ?? Date.now() / 1000),
+    timestamp: Math.floor((startTime ?? Date.now()) / 1000),
     sk: sessionKey,
   });
   const response = await callApi<ScrobbleResponse>(API_URL, params);
