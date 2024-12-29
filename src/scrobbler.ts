@@ -6,11 +6,11 @@ const require = createRequire(import.meta.url);
 const { setTimeout: sleep } = require('node:timers/promises');
 
 import isOnline from 'is-online';
+import logger from './lib/logger.ts';
 import { checkAppleMusicState } from './services/imusic.ts';
 import { scrobbleTrack, updateNowPlaying } from './services/lastfm.ts';
-import logger from './lib/logger.ts';
-import type { TrackInfo } from './types.ts';
 import { addToRetryQueue, scrobbleRetryQueue } from './services/retry-queue.ts';
+import type { TrackInfo } from './types.ts';
 
 const DEFAULT_SLEEP_MS = 10000;
 const APPLE_MUSIC_OFF_SLEEP_MS = 30000;

@@ -1,7 +1,7 @@
 import { platform } from 'node:os';
-import { authenticate } from './services/lastfm.ts';
-import { startScrobbling } from './scrobbler.ts';
 import logger from './lib/logger.ts';
+import { startScrobbling } from './scrobbler.ts';
+import { authenticate } from './services/lastfm.ts';
 
 const SESSION_KEY = 'sessionKey';
 

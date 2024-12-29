@@ -45,9 +45,7 @@ export const request = <T>(
         reject(error);
       }
     };
-    const req = options
-      ? https.request(url, options, handler)
-      : https.get(url, handler);
+    const req = options ? https.request(url, options, handler) : https.get(url, handler);
 
     req.on('error', (err) => {
       reject(err);

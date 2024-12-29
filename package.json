@@ -10,15 +10,11 @@
     "dev": "node --disable-warning=ExperimentalWarning --env-file .env --experimental-webstorage --localstorage-file .localStorage --experimental-strip-types --watch src/** --watch-preserve-output src/index.ts",
     "start": "node --disable-warning=ExperimentalWarning --env-file .env --experimental-webstorage --localstorage-file .localStorage --experimental-strip-types src/index.ts",
     "test": "node --disable-warning=ExperimentalWarning --env-file .env.test --experimental-test-module-mocks --experimental-strip-types --test test/**",
-    "test:only": "node --disable-warning=ExperimentalWarning --env-file .env.test --experimental-test-module-mocks --experimental-strip-types --test --test-only test/**"
+    "test:only": "node --disable-warning=ExperimentalWarning --env-file .env.test --experimental-test-module-mocks --experimental-strip-types --test --test-only test/**",
+    "format": "npx @biomejs/biome check --write --files-ignore-unknown=true --organize-imports-enabled=true --no-errors-on-unmatched src/",
+    "install:hooks": "git config core.hooksPath hooks"
   },
-  "keywords": [
-    "apple",
-    "music",
-    "scrobbler",
-    "lastfm",
-    "last.fm"
-  ],
+  "keywords": ["apple", "music", "scrobbler", "lastfm", "last.fm"],
   "author": "Viktor Konovalov <victor@konovalov.pw>",
   "license": "MIT",
   "description": "Simple music scrobbler for Apple Music",
@@ -28,6 +24,7 @@
     "pino": "^9.6.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@types/is-online": "^8.0.0",
     "@types/node": "^22.10.2",
     "@types/pino": "^7.0.4"
