@@ -1,5 +1,6 @@
 import { platform } from 'node:os';
 import logger from './lib/logger.ts';
+import { localStorage } from './lib/storage.ts';
 import { startScrobbling } from './scrobbler.ts';
 import { authenticate } from './services/lastfm.ts';
 

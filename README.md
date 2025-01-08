@@ -1,6 +1,6 @@
 # iMusic-Scrobby
 
-Simple music scrobbler for Apple Music written in Node.js (22.12+)
+Simple music scrobbler for Apple Music written in Node.js (22.12+) with Bun support
 
 [![Testing CI](https://github.com/vk0novalov/imusic-scrobby/actions/workflows/test.yml/badge.svg)](https://github.com/vk0novalov/imusic-scrobby/actions/workflows/test.yml)
 [![snyk](https://snyk.io/test/github/vk0novalov/imusic-scrobby/badge.svg)](https://snyk.io/test/github/vk0novalov/imusic-scrobby)
@@ -23,6 +23,9 @@ cd imusic-scrobby
 
 # Install dependencies
 npm install
+
+# or for Bun
+bun install
 ```
 
 ## Environment Variables
@@ -51,6 +54,9 @@ npm run dev
 # Run in production mode
 npm start
 
+# for Bun
+bun run src/index.ts
+
 # Run tests
 npm t
 ```
@@ -71,9 +77,12 @@ Run the application as a service:
 pm2 start npm --name imusic-scrobby -- start
 ```
 
+Useful [how-to](https://bun.sh/guides/ecosystem/pm2) for Bun.
+
 ## Dependencies
 
 - applescript
+- bun-storage (shim of localStorage for Bun)
 
 ## License
 
