@@ -9,7 +9,7 @@ import isOnline from 'is-online';
 import logger from './lib/logger.ts';
 import { checkAppleMusicState } from './services/imusic.ts';
 import { scrobbleTrack, updateNowPlaying } from './services/lastfm.ts';
-import { addToRetryQueue, scrobbleRetryQueue } from './services/retry-queue.ts';
+import { addToRetryQueue, scrobbleFromRetryQueue } from './services/retry-queue.ts';
 import type { TrackInfo } from './types.ts';
 
 const DEFAULT_SLEEP_MS = 10000;
@@ -47,8 +47,7 @@ const isEnoughTimeElapsed = (position: number, duration: number) => position > M
 const scrobble = async (sessionKey: string, trackInfo: TrackInfo) => {
   logger.trace(`Scrobble: ${trackInfo.artist} - ${trackInfo.track}`);
   if (!(await isOnline())) {
-    await addToRetryQueue(trackInfo);
-    return;
+    return await addToRetryQueue(trackInfo);
   }
   try {
     await scrobbleTrack(sessionKey, trackInfo);
@@ -106,11 +105,11 @@ const pollMusic = async (sessionKey: string): Promise<MusicAppState> => {
   return 'active';
 };
 
-const startScrobbleRetryQueueHandler = (sessionKey: string) => {
+const startscrobbleFromRetryQueueHandler = (sessionKey: string) => {
   const timeout = 60_000 * 10; // 10 minutes
-  scrobbleRetryQueue(sessionKey)
+  scrobbleFromRetryQueue(sessionKey)
     .catch(logger.error)
-    .finally(() => setTimeout(startScrobbleRetryQueueHandler, timeout, sessionKey).unref());
+    .finally(() => setTimeout(startscrobbleFromRetryQueueHandler, timeout, sessionKey).unref());
 };
 
 async function startScrobbling(sessionKey: string, { launchRetryQueue = false } = {}) {
@@ -121,7 +120,7 @@ async function startScrobbling(sessionKey: string, { launchRetryQueue = false } 
   const poll = async () => {
     if (launchRetryQueue) {
       logger.info('Launching retry queue...');
-      startScrobbleRetryQueueHandler(sessionKey);
+      startscrobbleFromRetryQueueHandler(sessionKey);
     }
 
     while (isScrobbling) {

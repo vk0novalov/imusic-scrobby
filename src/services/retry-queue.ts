@@ -16,7 +16,7 @@ const loadQueueFromStore = async () => {
   }
 };
 
-const saveQueueToStore = async () => {
+const saveQueueToStore = async (queue: TrackInfo[]) => {
   await writeFile(QUEUE_FILE, JSON.stringify(queue), 'utf8');
 };
 
@@ -25,10 +25,10 @@ const addToRetryQueue = async (trackInfo: TrackInfo) => {
   if (!queue) throw new Error('Failed to load queue');
   trackInfo.id = String(Date.now());
   queue.push(trackInfo);
-  await saveQueueToStore();
+  await saveQueueToStore(queue);
 };
 
-const scrobbleRetryQueue = async (sessionKey: string) => {
+const scrobbleFromRetryQueue = async (sessionKey: string) => {
   queue ??= await loadQueueFromStore();
   if (!queue) throw new Error('Failed to load queue');
   if (queue.length === 0) return;
@@ -45,7 +45,7 @@ const scrobbleRetryQueue = async (sessionKey: string) => {
     }
   }
   queue = queue.filter((trackInfo: TrackInfo) => !scrobbledTracks.has(trackInfo.id));
-  await saveQueueToStore();
+  await saveQueueToStore(queue);
 };
 
-export { addToRetryQueue, scrobbleRetryQueue };
+export { addToRetryQueue, scrobbleFromRetryQueue };
