@@ -47,26 +47,30 @@ const isEnoughTimeElapsed = (position: number, duration: number) => position > M
 const scrobble = async (sessionKey: string, trackInfo: TrackInfo) => {
   logger.trace(`Scrobble: ${trackInfo.artist} - ${trackInfo.track}`);
   if (!(await isOnline())) {
-    addToRetryQueue(trackInfo).catch(logger.error);
+    await addToRetryQueue(trackInfo);
     return;
   }
-  scrobbleTrack(sessionKey, trackInfo).catch((err: Error) => {
-    logger.warn(`Failed to scrobble: ${trackInfo.artist} - ${trackInfo.track}, error: ${err.message}`);
-    addToRetryQueue(trackInfo).catch(logger.error);
-  });
+  try {
+    await scrobbleTrack(sessionKey, trackInfo);
+  } catch (err: unknown) {
+    logger.warn(
+      `Failed to scrobble: ${trackInfo.artist} - ${trackInfo.track}, error: ${err instanceof Error ? err.message : err}`,
+    );
+    await addToRetryQueue(trackInfo);
+  }
 };
 
 const setNowPlaying = async (sessionKey: string, trackInfo: TrackInfo) => {
   logger.trace(`Now Playing: ${trackInfo.artist} - ${trackInfo.track}`);
   if (!(await isOnline())) return;
-  updateNowPlaying(sessionKey, trackInfo).catch(logger.error);
+  await updateNowPlaying(sessionKey, trackInfo);
 };
 
 const pollMusic = async (sessionKey: string): Promise<MusicAppState> => {
   const [isRunning, isPlaying, track, artist, album, duration, position] = await checkAppleMusicState();
 
   if (!isRunning) {
-    if (nowPlayingTrack) scrobble(sessionKey, nowPlayingTrack);
+    if (nowPlayingTrack) scrobble(sessionKey, nowPlayingTrack).catch(logger.error);
     nowPlayingTrack = null;
     return 'inactive';
   }
@@ -84,19 +88,19 @@ const pollMusic = async (sessionKey: string): Promise<MusicAppState> => {
       album,
       startTime: getStartTime(position),
     };
-    setNowPlaying(sessionKey, nowPlayingTrack);
+    setNowPlaying(sessionKey, nowPlayingTrack).catch(logger.error);
   }
 
   if (checkForRewind(lastScrobbledTrack, nowPlayingTrack, position)) {
     // looks like rewind - so it's new scrobbling
     lastScrobbledTrack = null;
     nowPlayingTrack.startTime = getStartTime(position);
-    setNowPlaying(sessionKey, nowPlayingTrack);
+    setNowPlaying(sessionKey, nowPlayingTrack).catch(logger.error);
   }
 
   // Scrobble the track if it's a new track and has played for at least half its duration or 4 minutes
   if (hasTrackChanged(lastScrobbledTrack, track, artist) && isEnoughTimeElapsed(position, duration)) {
-    scrobble(sessionKey, nowPlayingTrack);
+    scrobble(sessionKey, nowPlayingTrack).catch(logger.error);
     lastScrobbledTrack = { track, artist, position, album };
   }
   return 'active';
