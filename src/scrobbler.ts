@@ -15,7 +15,11 @@ import type { TrackInfo } from './types.ts';
 const DEFAULT_SLEEP_MS = 10000;
 const APPLE_MUSIC_OFF_SLEEP_MS = 30000;
 
-type MusicAppState = 'inactive' | 'active';
+const MusicAppState = {
+  INACTIVE: 'INACTIVE',
+  ACTIVE: 'ACTIVE',
+} as const;
+type MusicAppState = keyof typeof MusicAppState;
 
 let lastScrobbledTrack: TrackInfo | null = null;
 let nowPlayingTrack: TrackInfo | null = null;
@@ -71,12 +75,12 @@ const pollMusic = async (sessionKey: string): Promise<MusicAppState> => {
   if (!isRunning) {
     if (nowPlayingTrack) scrobble(sessionKey, nowPlayingTrack).catch(logger.error);
     nowPlayingTrack = null;
-    return 'inactive';
+    return MusicAppState.INACTIVE;
   }
 
   if (!isPlaying) {
     nowPlayingTrack = null;
-    return 'inactive';
+    return MusicAppState.INACTIVE;
   }
 
   // Update Now Playing if the track has changed
@@ -102,7 +106,7 @@ const pollMusic = async (sessionKey: string): Promise<MusicAppState> => {
     scrobble(sessionKey, nowPlayingTrack).catch(logger.error);
     lastScrobbledTrack = { track, artist, position, album };
   }
-  return 'active';
+  return MusicAppState.ACTIVE;
 };
 
 const startscrobbleFromRetryQueueHandler = (sessionKey: string) => {
@@ -125,7 +129,7 @@ async function startScrobbling(sessionKey: string, { launchRetryQueue = false } 
 
     while (isScrobbling) {
       const musicAppState = await pollMusic(sessionKey);
-      await sleep(musicAppState === 'active' ? DEFAULT_SLEEP_MS : APPLE_MUSIC_OFF_SLEEP_MS);
+      await sleep(musicAppState === MusicAppState.ACTIVE ? DEFAULT_SLEEP_MS : APPLE_MUSIC_OFF_SLEEP_MS);
     }
   };
   process.nextTick(poll);
