@@ -128,7 +128,10 @@ async function startScrobbling(sessionKey: string, { launchRetryQueue = false } 
     }
 
     while (isScrobbling) {
-      const musicAppState = await pollMusic(sessionKey);
+      const musicAppState = await pollMusic(sessionKey).catch((err) => {
+        logger.error(`Failed to poll music state: ${err}`);
+        return MusicAppState.INACTIVE;
+      });
       await sleep(musicAppState === MusicAppState.ACTIVE ? DEFAULT_SLEEP_MS : APPLE_MUSIC_OFF_SLEEP_MS);
     }
   };

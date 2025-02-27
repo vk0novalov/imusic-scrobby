@@ -123,7 +123,7 @@ async function authenticate(): Promise<string> {
   try {
     const token = await getAuthToken();
     console.log('Please visit this URL to authorize the application:');
-    console.log(`http://www.last.fm/api/auth/?api_key=${API_KEY}&token=${token}`);
+    console.log(`https://www.last.fm/api/auth/?api_key=${API_KEY}&token=${token}`);
 
     const rl = readline.createInterface({
       input: process.stdin,

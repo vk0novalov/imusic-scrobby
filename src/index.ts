@@ -29,7 +29,8 @@ const main = async () => {
 
   await startScrobbling(process.env.SESSION_KEY ?? (await getSessionKey()), { launchRetryQueue: true });
 };
+
 main().catch((err) => {
-  console.error(err);
+  logger.error(`Failed to start scrobbling: ${err}`);
   process.exit(1);
 });
