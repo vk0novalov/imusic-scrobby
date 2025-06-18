@@ -1,16 +1,8 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-  "vcs": {
-    "enabled": false,
-    "clientKind": "git",
-    "useIgnoreFile": false
-  },
-  "files": {
-    "ignoreUnknown": false,
-    "ignore": []
-  },
+  "$schema": "https://biomejs.dev/schemas/1.5.3/schema.json",
   "formatter": {
     "enabled": true,
+    "formatWithErrors": false,
     "indentStyle": "space",
     "indentWidth": 2,
     "lineWidth": 120
@@ -21,12 +13,63 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "recommended": false,
+      "complexity": {
+        "noForEach": "error",
+        "noStaticOnlyClass": "error",
+        "noUselessSwitchCase": "error",
+        "useDateNow": "error",
+        "useFlatMap": "error"
+      },
+      "correctness": {
+        "noInvalidBuiltinInstantiation": "error",
+        "noUndeclaredVariables": "error",
+        "noUnusedVariables": "error",
+        "noGlobalObjectCalls": "error"
+      },
+      "style": {
+        "noNegationElse": "off",
+        "useExplicitLengthCheck": "error",
+        "useForOf": "error",
+        "useNodejsImportProtocol": "error",
+        "useNumberNamespace": "error",
+        "useThrowNewError": "error"
+      },
+      "suspicious": {
+        "noDoubleEquals": "error",
+        "noThenProperty": "error",
+        "useErrorMessage": "error",
+        "useNumberToFixedDigitsArgument": "error"
+      }
     }
   },
   "javascript": {
     "formatter": {
+      "semicolons": "always",
       "quoteStyle": "single"
+    },
+    "globals": []
+  },
+  "overrides": [
+    {
+      "include": ["tests/**"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noDoubleEquals": "off"
+          }
+        }
+      }
+    },
+    {
+      "include": ["tests/**"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noDoubleEquals": "off"
+          }
+        }
+      }
     }
-  }
+  ]
 }

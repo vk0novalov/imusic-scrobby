@@ -1,17 +1,11 @@
 import crypto from 'node:crypto';
 import readline from 'node:readline';
 import { setTimeout as sleep } from 'node:timers/promises';
+import config from '../lib/config.ts';
 import { request } from '../lib/network/request.ts';
 import type { TrackInfo } from '../types.ts';
 
-// TODO: move to config and validate on startup
-if (!process.env.API_KEY || !process.env.API_SECRET) {
-  console.error('API_KEY and API_SECRET environment variables are required');
-  process.exit(1);
-}
-
-const API_KEY: string = process.env.API_KEY;
-const API_SECRET: string = process.env.API_SECRET;
+const { API_KEY, API_SECRET } = config;
 const API_URL = 'https://ws.audioscrobbler.com/2.0/';
 
 type ScrobbleResponse = {
