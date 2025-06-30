@@ -1,24 +1,9 @@
-import { readFile, writeFile } from 'node:fs/promises';
 import { setTimeout as sleep } from 'node:timers/promises';
+import { loadQueueFromStore, saveQueueToStore } from '../lib/queue.ts';
 import type { TrackInfo } from '../types.ts';
 import { scrobbleTrack } from './lastfm.ts';
 
-const QUEUE_FILE = '.retry-queue.tmp';
-
 let queue: TrackInfo[] | null;
-
-const loadQueueFromStore = async () => {
-  try {
-    const queue = await readFile(QUEUE_FILE, 'utf8');
-    return JSON.parse(queue);
-  } catch {
-    return [];
-  }
-};
-
-const saveQueueToStore = async (queue: TrackInfo[]) => {
-  await writeFile(QUEUE_FILE, JSON.stringify(queue), 'utf8');
-};
 
 const addToRetryQueue = async (trackInfo: TrackInfo) => {
   queue ??= await loadQueueFromStore();
@@ -28,7 +13,7 @@ const addToRetryQueue = async (trackInfo: TrackInfo) => {
   await saveQueueToStore(queue);
 };
 
-const scrobbleFromRetryQueue = async (sessionKey: string) => {
+const scrobbleFromRetryQueue = async (sessionKey: string, scrobbleDelay: number = 1000) => {
   queue ??= await loadQueueFromStore();
   if (!queue) throw new Error('Failed to load queue');
   if (queue.length === 0) return;
@@ -39,7 +24,7 @@ const scrobbleFromRetryQueue = async (sessionKey: string) => {
       if (await scrobbleTrack(sessionKey, trackInfo)) {
         scrobbledTracks.add(trackInfo.id);
       }
-      await sleep(1000);
+      await sleep(scrobbleDelay);
     } catch {
       // Ignore errors, just try the next track
     }
