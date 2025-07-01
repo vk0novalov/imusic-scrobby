@@ -14,7 +14,13 @@
     "format": "npx @biomejs/biome check --write --files-ignore-unknown=true --organize-imports-enabled=true --no-errors-on-unmatched src/",
     "install:hooks": "git config core.hooksPath hooks"
   },
-  "keywords": ["apple", "music", "scrobbler", "lastfm", "last.fm"],
+  "keywords": [
+    "apple",
+    "music",
+    "scrobbler",
+    "lastfm",
+    "last.fm"
+  ],
   "author": "Viktor Konovalov <victor@konovalov.pw>",
   "license": "MIT",
   "description": "Simple music scrobbler for Apple Music",
@@ -25,7 +31,7 @@
     "pino": "^9.7.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "2.0.6",
     "@types/bun": "^1.2.2",
     "@types/is-online": "^8.0.0",
     "@types/node": "^22.10.2",
