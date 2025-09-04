@@ -15,6 +15,6 @@ export const loadQueueFromStore = async () => {
 
 export const saveQueueToStore = async (queue: TrackInfo[]) => {
   await writeFile(QUEUE_FILE, JSON.stringify(queue), 'utf8').catch((err: Error) => {
-    logger.warn(`Error with saving retry queue: ${err.message}`, err);
+    logger.warn(err, `Error with saving retry queue: ${err.message}`);
   });
 };
